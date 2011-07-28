@@ -1,13 +1,14 @@
 package de.flomeise.filetransfertool;
 
 /**
- * A simple representation of a three-place version
+ * A simple representation of a program version
  * @author Flohw
  */
 public final class Version implements Comparable {
 	private final int first;
 	private final int second;
 	private final int third;
+	private final int revision;
 
 	/**
 	 * Creates a new version with the three version numbers specified
@@ -15,10 +16,11 @@ public final class Version implements Comparable {
 	 * @param second the second version number
 	 * @param third the second version number
 	 */
-	public Version(int first, int second, int third) {
+	public Version(int first, int second, int third, int revision) {
 		this.first = first;
 		this.second = second;
 		this.third = third;
+		this.revision = revision;
 	}
 
 	/**
@@ -28,7 +30,8 @@ public final class Version implements Comparable {
 	public Version(String s) {
 		this.first = Integer.parseInt(s.split("\\.")[0]);
 		this.second = Integer.parseInt(s.split("\\.")[1]);
-		this.third = Integer.parseInt(s.split("\\.")[2]);
+		this.third = Integer.parseInt(s.split("\\.")[2].split("\\-")[0]);
+		this.revision = Integer.parseInt(s.split("\\-")[1]);
 	}
 
 	/**
@@ -51,10 +54,14 @@ public final class Version implements Comparable {
 	public int getThird() {
 		return third;
 	}
+	
+	public int getRevision() {
+		return revision;
+	}
 
 	@Override
 	public String toString() {
-		return first + "." + second + "." + third;
+		return first + "." + second + "." + third + "-" +  revision;
 	}
 
 	@Override
@@ -70,7 +77,8 @@ public final class Version implements Comparable {
 		Version v = (Version) o;
 		return first == v.getFirst()
 			   && second == v.getSecond()
-			   && third == v.getThird();
+			   && third == v.getThird()
+			   && revision == v.getRevision();
 	}
 
 	@Override
@@ -79,6 +87,7 @@ public final class Version implements Comparable {
 		hash = 83 * hash + this.first;
 		hash = 83 * hash + this.second;
 		hash = 83 * hash + this.third;
+		hash = 83 * hash + this.revision;
 		return hash;
 	}
 
@@ -93,7 +102,13 @@ public final class Version implements Comparable {
 			if(first == v.getFirst()) {
 				if(second == v.getSecond()) {
 					if(third == v.getThird()) {
-						return 0;
+						if(revision == v.getRevision()) {
+							return 0;
+						} else if(revision > v.getRevision()) {
+							return 1;
+						} else {
+							return -1;
+						}
 					} else if(third > v.getThird()) {
 						return 1;
 					} else {
@@ -113,5 +128,4 @@ public final class Version implements Comparable {
 			throw new ClassCastException(o.getClass().getCanonicalName() + " cannot be compared to " + this.getClass().getCanonicalName());
 		}
 	}
-
 }

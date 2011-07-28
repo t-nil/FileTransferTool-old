@@ -36,19 +36,21 @@ import org.apache.commons.io.FileUtils;
 public class FileTransferTool {
 	public static final String NAME = "FileTransferTool";
 	public static final String AUTHOR = "Florian \"r0Xx4H-7331\" Meißner";
-	public static final Version VERSION;
+	public static final Version VERSION = new Version(FileTransferTool.class.getPackage().getImplementationVersion());
 
-	static {
-		BufferedReader br = new BufferedReader(new InputStreamReader(FileTransferTool.class.getResourceAsStream("/version.txt")));
-		String s = null;
-		try {
-			s = br.readLine();
-		} catch(IOException ex) {
-			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
-			System.exit(1);
-		}
-		VERSION = new Version(s);
-	}
+	//old static initializer to read the program version from version.txt
+
+//	static {
+//		BufferedReader br = new BufferedReader(new InputStreamReader(FileTransferTool.class.getResourceAsStream("/version.txt")));
+//		String s = null;
+//		try {
+//			s = br.readLine();
+//		} catch(IOException ex) {
+//			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
+//			System.exit(1);
+//		}
+//		VERSION = new Version(s);
+//	}
 
 	public static final String PROPERTIES_FILE = "filetransfertool.properties";
 	private static Properties properties, pDefaults;

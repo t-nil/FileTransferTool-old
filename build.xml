@@ -76,12 +76,4 @@
     nbproject/build-impl.xml file. 
 
     -->
-    <target name="-post-jar">
-        <one-jar destfile="FileTransferTool.jar">
-            <main jar="dist/FileTransferTool.jar" />
-            <lib>
-                <fileset dir="dist/lib" />
-            </lib>
-        </one-jar>
-    </target>
 </project>

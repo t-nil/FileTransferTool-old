@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -62,7 +60,7 @@ public class Updater {
 			URL updateFileURL = new URL(updateFileAddress + updateFileName);
 			URLConnection updateFileURLConnection = updateFileURL.openConnection();
 			csv = new CsvReader(updateFileURLConnection.getInputStream(), Charset.forName("ISO-8859-1"));
-			Version highestVersion = new Version(0, 0, 0);
+			Version highestVersion = new Version(0, 0, 0, 0);
 			String highestVersionFilename = null;
 			while(csv.readRecord()) {
 				Version v = new Version(csv.get(0));
