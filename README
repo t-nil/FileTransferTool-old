@@ -1,0 +1,13 @@
+CHANGELOG:
+
+1.1.1:
+- Fixed favourite directory deleting
+1.1.0:
+- Added favourite list
+- Added abort button for transfer
+1.0.2:
+- Repaired previous version
+1.0.1:
+- The tool now remembers the last directory used in the file dialog
+1.0.0:
+- Initial release
