@@ -5,6 +5,9 @@ CHANGELOG:
 1.1.0:
 - Added favourite list
 - Added abort button for transfer
+- Added settings dialog
+- Added about dialog
+- Added completion percentage and byte progress count in KB/MB/GB
 1.0.2:
 - Repaired previous version
 1.0.1:
