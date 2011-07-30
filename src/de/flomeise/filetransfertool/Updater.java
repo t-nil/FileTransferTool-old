@@ -31,9 +31,8 @@ public class Updater {
 	/**
 	 * Updates the program
 	 * @param updateFileAddress the address of the file where the update information is stored
-	 * @param updateFileName the name of the file where the update information is stored
+	 * @param programName 
 	 * @param currentVersion the current program version
-	 * @return the file object related to the running jar
 	 */
 	public static void update(String updateFileAddress, String programName, Version currentVersion) {
 		BufferedReader reader = null;
@@ -55,12 +54,12 @@ public class Updater {
 				JOptionPane.showMessageDialog(null, "Could not resolve running jar path");
 				return;
 			}
-			
+
 			is = new URL(updateFileAddress + programName + ".lst").openStream();
 			reader = new BufferedReader(new InputStreamReader(is));
 			Version highestVersion = new Version(0, 0, 0);
 			line = null;
-			
+
 			while((line = reader.readLine()) != null) {
 				Version v = new Version(line);
 				if(v.compareTo(highestVersion) > 0) {
@@ -69,18 +68,18 @@ public class Updater {
 			}
 			reader.close();
 			is.close();
-			
+
 			if(highestVersion.compareTo(currentVersion) > 0) {
 				JOptionPane.showMessageDialog(null, "Update found! Current version = " + currentVersion + ", server version = " + highestVersion + ". Updating...");
 				File updateFolder = new File(currentJar.getParentFile(), "update");
 				FileUtils.forceMkdir(updateFolder);
 				File newJar = new File(updateFolder, currentJar.getName());
 				copyStream(new URL(updateFileAddress + highestVersion.toString() + ".jar").openStream(), new FileOutputStream(newJar));
-				
+
 				is = new URL(updateFileAddress + programName + "_libs.lst").openStream();
 				reader = new BufferedReader(new InputStreamReader(is));
 				line = null;
-				
+
 				while((line = reader.readLine()) != null) {
 					File library = new File(currentJar.getParentFile(), "libs" + File.pathSeparator + line);
 					if(!library.exists()) {
@@ -105,16 +104,17 @@ public class Updater {
 			}
 		}
 	}
-	
+
 	private static void copyStream(InputStream is, OutputStream os) throws IOException {
 		byte[] buffer = new byte[8192];
 		int bytesRead = 0;
-				
+
 		while((bytesRead = is.read(buffer)) != -1) {
 			os.write(buffer, 0, bytesRead);
 		}
-		
+
 		is.close();
 		os.close();
 	}
+
 }

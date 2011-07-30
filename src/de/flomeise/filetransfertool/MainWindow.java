@@ -43,7 +43,8 @@ import org.apache.commons.io.FileUtils;
  */
 public class MainWindow extends javax.swing.JFrame {
 	DefaultTreeModel jTree1Model;
-	Map<String,Recipient> recipients;
+	Map<String, Recipient> recipients;
+
 	/** Creates new form MainWindow */
 	public MainWindow() {
 		FileTransferTool.init(this);
@@ -329,9 +330,10 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null || node.getAllowsChildren() == true)
+		if(node == null || node.getAllowsChildren() == true) {
 			return;
-		
+		}
+
 		Recipient r = recipients.get((String) node.getUserObject());
 		jTextField1.setText(r.getAddress());
 		jTextField2.setText(Integer.toString(r.getPort()));
@@ -339,38 +341,45 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null)
+		if(node == null) {
 			return;
-		
+		}
+
 		String name, address;
 		int port;
-		
+
 		while(true) {
 			name = JOptionPane.showInputDialog(this, "Please enter the name for the favourite:");
-			if(name == null)
+			if(name == null) {
 				return;
-			if(!name.equals(""))
+			}
+			if(!name.equals("")) {
 				break;
+			}
 		}
 		while(true) {
 			address = JOptionPane.showInputDialog(this, "Please enter the address for the favourite:");
-			if(address == null) 
+			if(address == null) {
 				return;
-			if(!address.equals(""))
+			}
+			if(!address.equals("")) {
 				break;
+			}
 		}
 		while(true) {
 			try {
 				port = Integer.parseInt(JOptionPane.showInputDialog(this, "Please enter the port for the favourite:", FileTransferTool.getProperty("port")));
-				if(port > 0)
+				if(port > 0) {
 					break;
+				}
 			} catch(Exception e) {
 			}
 		}
-		
-		if(!node.getAllowsChildren())
+
+		if(!node.getAllowsChildren()) {
 			node = (DefaultMutableTreeNode) node.getParent();
-			
+		}
+
 		if(recipients.containsKey(name)) {
 			JOptionPane.showMessageDialog(this, "Name already exists!");
 			return;
@@ -378,92 +387,105 @@ public class MainWindow extends javax.swing.JFrame {
 
 		recipients.put(name, new Recipient(name, address, port));
 		node.add(new DefaultMutableTreeNode(name, false));
-		
+
 		redrawTree();
 	}//GEN-LAST:event_jButton6ActionPerformed
 
 	private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null)
+		if(node == null) {
 			return;
-		
+		}
+
 		String name;
-		
+
 		while(true) {
 			name = JOptionPane.showInputDialog(this, "Please enter the name for the folder:");
-			if(name == null)
+			if(name == null) {
 				return;
-			if(!name.equals(""))
+			}
+			if(!name.equals("")) {
 				break;
+			}
 		}
-		
-		if(!node.getAllowsChildren())
+
+		if(!node.getAllowsChildren()) {
 			node = (DefaultMutableTreeNode) node.getParent();
-			
+		}
+
 		node.add(new DefaultMutableTreeNode(name, true));
-		
+
 		redrawTree();
 	}//GEN-LAST:event_jButton11ActionPerformed
 
 	private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null)
+		if(node == null) {
 			return;
-		
+		}
+
 		if(node.getAllowsChildren()) {
 			String name = (String) node.getUserObject();
-		
+
 			while(true) {
 				name = JOptionPane.showInputDialog(this, "Please enter the name for the folder:", name);
-				if(name == null)
+				if(name == null) {
 					return;
-				if(!name.equals(""))
+				}
+				if(!name.equals("")) {
 					break;
+				}
 			}
-			
+
 			node.setUserObject(name);
 		} else {
 			Recipient r = recipients.get((String) node.getUserObject());
 			String name = r.getName(), address = r.getAddress();
 			int port = r.getPort();
 			String old_name = name;
-			
+
 			while(true) {
 				name = JOptionPane.showInputDialog(this, "Please enter the name for the favourite:", name);
-				if(name == null)
+				if(name == null) {
 					return;
-				if(!name.equals(""))
+				}
+				if(!name.equals("")) {
 					break;
+				}
 			}
 			while(true) {
 				address = JOptionPane.showInputDialog(this, "Please enter the address for the favourite:", address);
-				if(address == null) 
+				if(address == null) {
 					return;
-				if(!address.equals(""))
+				}
+				if(!address.equals("")) {
 					break;
+				}
 			}
 			while(true) {
 				try {
 					port = Integer.parseInt(JOptionPane.showInputDialog(this, "Please enter the port for the favourite:", Integer.toString(port)));
-					if(port > 0)
+					if(port > 0) {
 						break;
+					}
 				} catch(Exception e) {
 				}
 			}
-			
+
 			recipients.remove(old_name);
 			recipients.put(name, new Recipient(name, address, port));
 			node.setUserObject(name);
 		}
-		
+
 		redrawTree();
 	}//GEN-LAST:event_jButton7ActionPerformed
 
 	private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null)
+		if(node == null) {
 			return;
-		
+		}
+
 		if(JOptionPane.showConfirmDialog(this, "Are you really sure you want to delete this?", "Sure?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			if(node.getAllowsChildren() == true && node.getChildCount() > 0) {
 				JOptionPane.showMessageDialog(this, "Directory is not empty!");
@@ -472,15 +494,16 @@ public class MainWindow extends javax.swing.JFrame {
 			recipients.remove((String) node.getUserObject());
 			node.removeFromParent();
 		}
-		
+
 		redrawTree();
 	}//GEN-LAST:event_jButton8ActionPerformed
 
 	private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null)
+		if(node == null) {
 			return;
-		
+		}
+
 		DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) node.getParent();
 		if(node2 != null && node2.getIndex(node) > 0) {
 			node2.insert(node, node2.getIndex(node) - 1);
@@ -490,14 +513,15 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
-		if(node == null)
+		if(node == null) {
 			return;
-		
+		}
+
 		DefaultMutableTreeNode node2 = (DefaultMutableTreeNode) node.getParent();
 		if(node2 != null && node2.getIndex(node) < node2.getChildCount() - 1) {
 			node2.insert(node, node2.getIndex(node) + 1);
 		}
-		
+
 		redrawTree();
 	}//GEN-LAST:event_jButton10ActionPerformed
 
@@ -508,43 +532,43 @@ public class MainWindow extends javax.swing.JFrame {
 		jTree1.repaint();
 		jTree1.revalidate();
 	}
-	
+
 	private void expandAll(JTree tree, boolean expand) {
-		TreeNode root = (TreeNode)tree.getModel().getRoot();
+		TreeNode root = (TreeNode) tree.getModel().getRoot();
 
 		// Traverse tree from root
 		expandAll(tree, new TreePath(root), expand);
 	}
-	
+
 	private void expandAll(JTree tree, TreePath parent, boolean expand) {
 		// Traverse children
-		TreeNode node = (TreeNode)parent.getLastPathComponent();
-		if (node.getChildCount() >= 0) {
-			for (Enumeration e=node.children(); e.hasMoreElements(); ) {
-				TreeNode n = (TreeNode)e.nextElement();
+		TreeNode node = (TreeNode) parent.getLastPathComponent();
+		if(node.getChildCount() >= 0) {
+			for(Enumeration e = node.children(); e.hasMoreElements();) {
+				TreeNode n = (TreeNode) e.nextElement();
 				TreePath path = parent.pathByAddingChild(n);
 				expandAll(tree, path, expand);
 			}
 		}
 
 		// Expansion or collapse must be done bottom-up
-		if (expand) {
+		if(expand) {
 			tree.expandPath(parent);
 		} else {
 			tree.collapsePath(parent);
 		}
 	}
 
-	private static void loadFavourites(MainWindow mw) {		
+	private static void loadFavourites(MainWindow mw) {
 		XStream x = new XStream(new DomDriver());
 		try {
 			mw.jTree1.setModel((DefaultTreeModel) x.fromXML(new FileInputStream(new File("favourites1.xml"))));
-			mw.recipients = (Map<String,Recipient>) x.fromXML(new FileInputStream(new File("favourites2.xml")));
+			mw.recipients = (Map<String, Recipient>) x.fromXML(new FileInputStream(new File("favourites2.xml")));
 		} catch(FileNotFoundException ex) {
 			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
-	
+
 	private static void saveFavourites(MainWindow mw) {
 		XStream x = new XStream(new DomDriver());
 		try {
@@ -554,7 +578,7 @@ public class MainWindow extends javax.swing.JFrame {
 			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
-	
+
 	private static void doExit(int ret) {
 		FileTransferTool.saveProperties();
 		System.runFinalization();
@@ -563,6 +587,7 @@ public class MainWindow extends javax.swing.JFrame {
 
 	/**
 	 * @param args the command line arguments
+	 * @throws Exception  
 	 */
 	public static void main(String args[]) throws Exception {
 		try {
@@ -581,24 +606,24 @@ public class MainWindow extends javax.swing.JFrame {
 		if(args.length == 2 && args[0].equals("-update")) {
 			File oldJar = new File(args[2]);
 			File lock = new File(oldJar.getParentFile(), "lock");
-			
+
 			while(lock.exists()) {
 				Thread.sleep(100);
 			}
-			
+
 			File newJar = new File(MainWindow.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 			FileUtils.copyFile(newJar, oldJar);
 			new ProcessBuilder(oldJar.getCanonicalPath()).start();
 			return;
 		}
-		
+
 		File lock = new File("lock");
 		FileUtils.touch(lock);
 		lock.deleteOnExit();
-		
+
 		if(!(args.length == 1 && args[0].equals("-noupdate"))) {
 			Updater.update("http://flomeise.de/coding/updater/", "FileTransferTool", FileTransferTool.VERSION);
-			
+
 			File updateFolder = new File("update");
 			File currentJar = new File(MainWindow.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 			if(updateFolder.exists() && updateFolder.isDirectory() && currentJar.exists() && currentJar.isFile()) {
@@ -606,12 +631,13 @@ public class MainWindow extends javax.swing.JFrame {
 				return;
 			}
 		}
-		
+
 		java.awt.EventQueue.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
 				new MainWindow().setVisible(true);
 			}
+
 		});
 
 		Thread t = new Thread() {
@@ -619,17 +645,18 @@ public class MainWindow extends javax.swing.JFrame {
 			public void run() {
 				FileTransferTool.listen();
 			}
+
 		};
 		t.setDaemon(true);
 		t.start();
-		
+
 		/*Thread t2 = new Thread() {
-			@Override
-			public void run() {
-				while(true) {
-					
-				}
-			}
+		@Override
+		public void run() {
+		while(true) {
+		
+		}
+		}
 		}*/
 	}
     // Variables declaration - do not modify//GEN-BEGIN:variables

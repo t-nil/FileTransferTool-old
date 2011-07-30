@@ -17,12 +17,14 @@ import java.awt.Toolkit;
  * @author Flohw
  */
 public class AboutDialog extends javax.swing.JDialog {
-
-	/** Creates new form AboutDialog */
+	/** Creates a new AboutDialog
+	 * @param parent the parent of the dialog
+	 * @param modal if the dialog is modal or not
+	 */
 	public AboutDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
 		initComponents();
-		setLocation((Toolkit.getDefaultToolkit().getScreenSize().width-getWidth())/2, (Toolkit.getDefaultToolkit().getScreenSize().height-getHeight())/2);
+		setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - getWidth()) / 2, (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight()) / 2);
 	}
 
 	/** This method is called from within the constructor to

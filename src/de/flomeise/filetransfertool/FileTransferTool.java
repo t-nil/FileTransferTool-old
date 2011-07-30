@@ -32,12 +32,19 @@ import org.apache.commons.io.FileUtils;
  * @author Flohw
  */
 public class FileTransferTool {
+	/**
+	 * 
+	 */
 	public static final String NAME = "FileTransferTool";
+	/**
+	 * 
+	 */
 	public static final String AUTHOR = "Florian \"r0Xx4H-7331\" Meißner";
+	/**
+	 * 
+	 */
 	public static final Version VERSION = new Version(FileTransferTool.class.getPackage().getImplementationVersion());
-
 	//old static initializer to read the program version from version.txt
-
 //	static {
 //		BufferedReader br = new BufferedReader(new InputStreamReader(FileTransferTool.class.getResourceAsStream("/version.txt")));
 //		String s = null;
@@ -49,22 +56,31 @@ public class FileTransferTool {
 //		}
 //		VERSION = new Version(s);
 //	}
-
+	/**
+	 * 
+	 */
 	public static final String PROPERTIES_FILE = "filetransfertool.properties";
 	private static Properties properties, pDefaults;
 	private static MainWindow mainWindow;
 	private static boolean initialized = false;
 	private static int connectionCount = 0;
-	
 	private volatile boolean aborted = false;
 
+	/**
+	 * 
+	 * @param mw
+	 */
 	public static void init(MainWindow mw) {
-		if(initialized)
+		if(initialized) {
 			return;
+		}
 		mainWindow = mw;
 		loadProperties();
 	}
-	
+
+	/**
+	 * 
+	 */
 	public static void loadProperties() {
 		pDefaults = new Properties();
 		pDefaults.setProperty("port", "1337");
@@ -79,10 +95,17 @@ public class FileTransferTool {
 		}
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static int getDefaultPort() {
 		return Integer.parseInt(getProperty("port"));
 	}
 
+	/**
+	 * 
+	 */
 	public static void saveProperties() {
 		try {
 			properties.store(new FileOutputStream(new File(PROPERTIES_FILE)), NAME);
@@ -92,26 +115,52 @@ public class FileTransferTool {
 		}
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
 	public static synchronized String getProperty(String s) {
 		return properties.getProperty(s);
 	}
 
+	/**
+	 * 
+	 * @param s1
+	 * @param s2
+	 */
 	public static synchronized void setProperty(String s1, String s2) {
 		properties.setProperty(s1, s2);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public static synchronized int getConnectionCount() {
 		return connectionCount;
 	}
 
+	/**
+	 * 
+	 */
 	public static synchronized void incrementConnectionCount() {
 		connectionCount++;
 	}
 
+	/**
+	 * 
+	 */
 	public static synchronized void decrementConnectionCount() {
 		connectionCount--;
 	}
 
+	/**
+	 * 
+	 * @param file
+	 * @param address
+	 * @param port
+	 */
 	public void send(File file, String address, int port) {
 		connectionCount++;
 		Socket server = null;
@@ -149,10 +198,12 @@ public class FileTransferTool {
 			int bytesRead = 0;
 			long startTime = System.currentTimeMillis();
 			while((bytesRead = isfile.read(buffer)) != -1) {
-				if(aborted == true)
-					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				if(aborted == true) {
+					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						return;
-				
+					}
+				}
+
 				try {
 					dos.write(buffer, 0, bytesRead);
 				} catch(SocketException e) {
@@ -162,7 +213,7 @@ public class FileTransferTool {
 				bytesReadAll += bytesRead;
 				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
 				pw.setProgress((int) Math.round(progress));
-				double speed = Math.round((double)(bytesReadAll/1024) / (System.currentTimeMillis()-startTime) * 100)/100;
+				double speed = Math.round((double) (bytesReadAll / 1024) / (System.currentTimeMillis() - startTime) * 100) / 100;
 				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
 			}
 			if(dis.readBoolean() == false) {
@@ -185,6 +236,9 @@ public class FileTransferTool {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public static void listen() {
 		try {
 			ServerSocket server = new ServerSocket(Integer.parseInt(properties.getProperty("port")));
@@ -205,6 +259,10 @@ public class FileTransferTool {
 		}
 	}
 
+	/**
+	 * 
+	 * @param client
+	 */
 	public void receive(Socket client) {
 		connectionCount++;
 		FileOutputStream osfile = null;
@@ -247,10 +305,12 @@ public class FileTransferTool {
 			int bytesRead = 0, bytesReadAll = 0;
 			long startTime = System.currentTimeMillis();
 			do {
-				if(aborted == true)
-					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				if(aborted == true) {
+					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						return;
-				
+					}
+				}
+
 				bytesReadAll += (bytesRead = is.read(buffer));
 				if(bytesReadAll == -1) {
 					JOptionPane.showMessageDialog(pw, "Peer has aborted the transfer!");
@@ -259,7 +319,7 @@ public class FileTransferTool {
 				osfile.write(buffer, 0, bytesRead);
 				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
 				pw.setProgress((int) Math.round(progress));
-				double speed = Math.round((double)(bytesReadAll/1024) / (System.currentTimeMillis()-startTime) * 100)/100;
+				double speed = Math.round((double) (bytesReadAll / 1024) / (System.currentTimeMillis() - startTime) * 100) / 100;
 				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
 			} while(bytesReadAll < filesize);
 			if(MD5.hashesEqual(md5, MD5.getHash(file))) {
@@ -282,8 +342,13 @@ public class FileTransferTool {
 		}
 
 	}
-	
+
+	/**
+	 * 
+	 * @param aborted
+	 */
 	public synchronized void setAborted(boolean aborted) {
 		this.aborted = aborted;
 	}
+
 }
