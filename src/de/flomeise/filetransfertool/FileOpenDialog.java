@@ -23,7 +23,7 @@ public class FileOpenDialog {
 	}
 
 	/**
-	 * 
+	 * Shows the file open dialog
 	 * @param parent
 	 * @param type
 	 * @param current
