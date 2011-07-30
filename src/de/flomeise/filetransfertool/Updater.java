@@ -4,17 +4,17 @@
  */
 package de.flomeise.filetransfertool;
 
-import com.csvreader.CsvReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -35,55 +35,58 @@ public class Updater {
 	 * @param currentVersion the current program version
 	 * @return the file object related to the running jar
 	 */
-	public static void update(String updateFileAddress, String updateFileName, String currentJarName, Version currentVersion) {
+	public static void update(String updateFileAddress, String programName, Version currentVersion) {
 		BufferedReader reader = null;
 		InputStream is = null;
 		OutputStream os = null;
-		CsvReader csv = null;
 		File currentJar;
+		String line;
 		try {
-//			try {
-//				URI uri = Updater.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-//				System.err.println("uri = " + uri);
-//				currentJar = new File("FileTransferTool.jar").getAbsoluteFile();
-//				System.err.println("currentJar = " + currentJar);
-//				if(!currentJar.exists() || currentJar.isDirectory()) {
-//					throw new URISyntaxException(currentJar.getCanonicalPath(), "doesn't exist or is an directory");
-//				}
-//			} catch(URISyntaxException ex) {
-//				Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
-//				JOptionPane.showMessageDialog(null, "Could not resolve running jar path");
-//				return null;
-//			}
-
-			currentJar = new File(currentJarName);
-			URL updateFileURL = new URL(updateFileAddress + updateFileName);
-			URLConnection updateFileURLConnection = updateFileURL.openConnection();
-			csv = new CsvReader(updateFileURLConnection.getInputStream(), Charset.forName("ISO-8859-1"));
+			try {
+				URI uri = Updater.class.getProtectionDomain().getCodeSource().getLocation().toURI();
+				System.err.println("uri = " + uri);
+				currentJar = new File(uri);
+				System.err.println("currentJar = " + currentJar);
+				if(!currentJar.exists() || currentJar.isDirectory()) {
+					throw new URISyntaxException(currentJar.getCanonicalPath(), "doesn't exist or is an directory");
+				}
+			} catch(URISyntaxException ex) {
+				Logger.getLogger(Updater.class.getName()).log(Level.SEVERE, null, ex);
+				JOptionPane.showMessageDialog(null, "Could not resolve running jar path");
+				return;
+			}
+			
+			is = new URL(updateFileAddress + programName + ".lst").openStream();
+			reader = new BufferedReader(new InputStreamReader(is));
 			Version highestVersion = new Version(0, 0, 0);
-			String highestVersionFilename = null;
-			while(csv.readRecord()) {
-				Version v = new Version(csv.get(0));
-				if(highestVersion.compareTo(v) < 0) {
+			line = null;
+			
+			while((line = reader.readLine()) != null) {
+				Version v = new Version(line);
+				if(v.compareTo(highestVersion) > 0) {
 					highestVersion = v;
-					highestVersionFilename = csv.get(1);
 				}
 			}
-
+			reader.close();
+			is.close();
+			
 			if(highestVersion.compareTo(currentVersion) > 0) {
 				JOptionPane.showMessageDialog(null, "Update found! Current version = " + currentVersion + ", server version = " + highestVersion + ". Updating...");
-				is = new URL(updateFileAddress + highestVersionFilename).openStream();
-				File newJar = new File(currentJar.getCanonicalPath() + ".new");
-				os = new FileOutputStream(newJar);
-				byte[] buffer = new byte[8192];
-				int bytesRead = 0;
-				while((bytesRead = is.read(buffer)) != -1) {
-					os.write(buffer, 0, bytesRead);
+				File updateFolder = new File(currentJar.getParentFile(), "update");
+				FileUtils.forceMkdir(updateFolder);
+				File newJar = new File(updateFolder, currentJar.getName());
+				copyStream(new URL(updateFileAddress + highestVersion.toString() + ".jar").openStream(), new FileOutputStream(newJar));
+				
+				is = new URL(updateFileAddress + programName + "_libs.lst").openStream();
+				reader = new BufferedReader(new InputStreamReader(is));
+				line = null;
+				
+				while((line = reader.readLine()) != null) {
+					File library = new File(currentJar.getParentFile(), "libs" + File.pathSeparator + line);
+					if(!library.exists()) {
+						copyStream(new URL(updateFileAddress + line).openStream(), new FileOutputStream(library));
+					}
 				}
-				File tempFile = File.createTempFile("update", ".jar");
-				FileUtils.copyFile(new File(currentJar.getCanonicalPath() + ".new"), tempFile);
-				new ProcessBuilder("java", "-jar", tempFile.getCanonicalPath(), "update", currentJar.getCanonicalPath()).start();
-				System.exit(0);
 			} else {
 				//JOptionPane.showMessageDialog(null, "No update found!");
 			}
@@ -98,30 +101,20 @@ public class Updater {
 				is.close();
 				os.close();
 				reader.close();
-				csv.close();
 			} catch(Exception e) {
 			}
 		}
 	}
 	
-	public static void performUpdate(String path) {
-	try {
-			File jar = new File(path);
-			File lock = new File(jar, "..\\lock");
-			
-			while(lock.exists())
-				Thread.sleep(100);
-			
-			jar.delete();
-			File newJar = new File(jar.getCanonicalPath() + ".new");
-			newJar.renameTo(jar);
-			JOptionPane.showMessageDialog(null, "Program successfully updated!");
-			new ProcessBuilder("java", "-jar", jar.getCanonicalPath()).start();
-			return;
-		} catch(IOException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-		} catch(InterruptedException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+	private static void copyStream(InputStream is, OutputStream os) throws IOException {
+		byte[] buffer = new byte[8192];
+		int bytesRead = 0;
+				
+		while((bytesRead = is.read(buffer)) != -1) {
+			os.write(buffer, 0, bytesRead);
 		}
+		
+		is.close();
+		os.close();
 	}
 }

@@ -35,6 +35,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -577,14 +578,35 @@ public class MainWindow extends javax.swing.JFrame {
 			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
-		if(args.length == 2 && args[0].equals("update")) {
+		if(args.length == 2 && args[0].equals("-update")) {
+			File oldJar = new File(args[2]);
+			File lock = new File(oldJar.getParentFile(), "lock");
 			
+			while(lock.exists()) {
+				Thread.sleep(100);
+			}
+			
+			File newJar = new File(MainWindow.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			FileUtils.copyFile(newJar, oldJar);
+			new ProcessBuilder(oldJar.getCanonicalPath()).start();
+			return;
 		}
-
+		
+		File lock = new File("lock");
+		FileUtils.touch(lock);
+		lock.deleteOnExit();
+		
 		if(!(args.length == 1 && args[0].equals("-noupdate"))) {
 			Updater.update("http://flomeise.de/coding/updater/", "FileTransferTool", FileTransferTool.VERSION);
+			
+			File updateFolder = new File("update");
+			File currentJar = new File(MainWindow.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			if(updateFolder.exists() && updateFolder.isDirectory() && currentJar.exists() && currentJar.isFile()) {
+				new ProcessBuilder(new File(updateFolder.getCanonicalPath(), currentJar.getName()).getCanonicalPath(), "-update", currentJar.getCanonicalPath()).start();
+				return;
+			}
 		}
-
+		
 		java.awt.EventQueue.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
