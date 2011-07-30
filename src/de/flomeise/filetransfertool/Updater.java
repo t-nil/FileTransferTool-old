@@ -60,7 +60,7 @@ public class Updater {
 			URL updateFileURL = new URL(updateFileAddress + updateFileName);
 			URLConnection updateFileURLConnection = updateFileURL.openConnection();
 			csv = new CsvReader(updateFileURLConnection.getInputStream(), Charset.forName("ISO-8859-1"));
-			Version highestVersion = new Version(0, 0, 0, 0);
+			Version highestVersion = new Version(0, 0, 0);
 			String highestVersionFilename = null;
 			while(csv.readRecord()) {
 				Version v = new Version(csv.get(0));

@@ -149,6 +149,7 @@ public class FileTransferTool {
 			byte[] buffer = new byte[Integer.parseInt(properties.getProperty("buffer_size"))];
 			long bytesReadAll = 0, filesize = file.length();
 			int bytesRead = 0;
+			long startTime = System.currentTimeMillis();
 			while((bytesRead = isfile.read(buffer)) != -1) {
 				if(aborted == true)
 					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
@@ -163,7 +164,8 @@ public class FileTransferTool {
 				bytesReadAll += bytesRead;
 				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
 				pw.setProgress((int) Math.round(progress));
-				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize));
+				double speed = Math.round((double)(bytesReadAll/1024) / (System.currentTimeMillis()-startTime) * 100)/100;
+				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
 			}
 			if(dis.readBoolean() == false) {
 				JOptionPane.showMessageDialog(pw, "File transfer failed!");
@@ -245,6 +247,7 @@ public class FileTransferTool {
 			int bufferSize = dis.readInt();
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0, bytesReadAll = 0;
+			long startTime = System.currentTimeMillis();
 			do {
 				if(aborted == true)
 					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
@@ -258,7 +261,8 @@ public class FileTransferTool {
 				osfile.write(buffer, 0, bytesRead);
 				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
 				pw.setProgress((int) Math.round(progress));
-				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize));
+				double speed = Math.round((double)(bytesReadAll/1024) / (System.currentTimeMillis()-startTime) * 100)/100;
+				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
 			} while(bytesReadAll < filesize);
 			if(MD5.hashesEqual(md5, MD5.getHash(file))) {
 				dos.writeBoolean(true);
