@@ -18,7 +18,10 @@ import javax.swing.JOptionPane;
  * @author Flohw
  */
 public class SettingsDialog extends javax.swing.JDialog {
-	/** Creates new form SettingsDialog */
+	/** Creates new form SettingsDialog
+	 * @param parent
+	 * @param modal  
+	 */
 	public SettingsDialog(java.awt.Frame parent, boolean modal) {
 		super(parent, modal);
 		initComponents();
@@ -95,14 +98,14 @@ public class SettingsDialog extends javax.swing.JDialog {
 			JOptionPane.showMessageDialog(this, "Invalid save dir!");
 			return;
 		}
-		
+
 		FileTransferTool.setProperty("port", jTextField1.getText());
 		FileTransferTool.setProperty("buffer_size", jTextField2.getText());
 		FileTransferTool.setProperty("save_dir", jTextField3.getText());
-		FileTransferTool.setProperty("save_dialog", jCheckBox1.isSelected()?"true":"false");
-		
+		FileTransferTool.setProperty("save_dialog", jCheckBox1.isSelected() ? "true" : "false");
+
 		FileTransferTool.saveProperties();
-		
+
 		dispose();
 	}//GEN-LAST:event_jButton1ActionPerformed
 

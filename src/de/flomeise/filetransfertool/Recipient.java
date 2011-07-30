@@ -11,7 +11,13 @@ package de.flomeise.filetransfertool;
 public class Recipient {
 	private String name, address;
 	private int port;
-	
+
+	/**
+	 * 
+	 * @param name
+	 * @param address
+	 * @param port
+	 */
 	public Recipient(String name, String address, int port) {
 		this.name = name;
 		this.address = address;
@@ -38,9 +44,10 @@ public class Recipient {
 	public int getPort() {
 		return port;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getName();
 	}
+
 }

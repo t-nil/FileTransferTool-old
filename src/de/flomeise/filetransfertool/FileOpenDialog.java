@@ -5,22 +5,39 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import javax.swing.JFileChooser;
 
+/**
+ * 
+ * @author Yannick
+ */
 public class FileOpenDialog {
 	private static File lastOpened;
-	
+
+	/**
+	 * 
+	 * @param type
+	 * @param current
+	 * @return
+	 */
 	public static String open(int type, File current) {
 		return open(null, type, current);
 	}
 
+	/**
+	 * 
+	 * @param parent
+	 * @param type
+	 * @param current
+	 * @return
+	 */
 	public static String open(java.awt.Component parent, int type, File current) {
 		final JFileChooser chooser = new JFileChooser("Verzeichnis wählen");
 		chooser.setDialogType(type);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
+
 		if(lastOpened == null) {
 			lastOpened = new File(FileTransferTool.getProperty("save_dir"));
 		}
-		
+
 		if(current == null) {
 			chooser.setSelectedFile(lastOpened);
 		} else {

@@ -8,7 +8,7 @@ public final class Version implements Comparable {
 	private final int first;
 	private final int second;
 	private final int third;
-	
+
 	/**
 	 * Creates a new version with the three version numbers specified
 	 * @param first the first version number
@@ -18,8 +18,8 @@ public final class Version implements Comparable {
 	public Version(int first, int second, int third) {
 		this.first = first;
 		this.second = second;
-		this.third = third;		
-        }
+		this.third = third;
+	}
 
 	/**
 	 * Creates a new version by parsing the given string with the scheme &lt;first&rt;.&lt;second&rt;.&lt;third&rt;
@@ -28,8 +28,8 @@ public final class Version implements Comparable {
 	public Version(String s) {
 		this.first = Integer.parseInt(s.split("\\.")[0]);
 		this.second = Integer.parseInt(s.split("\\.")[1]);
-		this.third = Integer.parseInt(s.split("\\.")[2]);			
-        }
+		this.third = Integer.parseInt(s.split("\\.")[2]);
+	}
 
 	/**
 	 * @return the first
@@ -51,7 +51,7 @@ public final class Version implements Comparable {
 	public int getThird() {
 		return third;
 	}
-		
+
 	@Override
 	public String toString() {
 		return first + "." + second + "." + third;
@@ -59,9 +59,10 @@ public final class Version implements Comparable {
 
 	@Override
 	public boolean equals(Object o) {
-		if(o == null || !(o instanceof Version))
+		if(o == null || !(o instanceof Version)) {
 			return false;
-		
+		}
+
 		if(o == this) {
 			return true;
 		}
@@ -70,7 +71,7 @@ public final class Version implements Comparable {
 		Version v = (Version) o;
 		return first == v.getFirst()
 			   && second == v.getSecond()
-			   && third == v.getThird();			   
+			   && third == v.getThird();
 	}
 
 	@Override
@@ -113,4 +114,5 @@ public final class Version implements Comparable {
 			throw new ClassCastException(o.getClass().getCanonicalName() + " cannot be compared to " + this.getClass().getCanonicalName());
 		}
 	}
+
 }

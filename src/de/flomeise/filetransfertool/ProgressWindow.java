@@ -18,8 +18,10 @@ import java.awt.Toolkit;
  */
 public class ProgressWindow extends javax.swing.JFrame {
 	private FileTransferTool fileTransferTool;
-	
-	/** Creates new form ProgressWindow */
+
+	/** Creates new form ProgressWindow
+	 * @param fileTransferTool 
+	 */
 	public ProgressWindow(FileTransferTool fileTransferTool) {
 		this.fileTransferTool = fileTransferTool;
 		initComponents();
