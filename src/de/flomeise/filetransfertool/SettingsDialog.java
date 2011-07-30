@@ -10,7 +10,6 @@
  */
 package de.flomeise.filetransfertool;
 
-import java.awt.Toolkit;
 import java.io.File;
 import javax.swing.JOptionPane;
 
