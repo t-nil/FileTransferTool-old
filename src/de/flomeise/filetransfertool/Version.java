@@ -13,7 +13,7 @@ public final class Version implements Comparable {
 	 * Creates a new version with the three version numbers specified
 	 * @param first the first version number
 	 * @param second the second version number
-	 * @param third the second version number
+	 * @param third the third version number
 	 */
 	public Version(int first, int second, int third) {
 		this.first = first;

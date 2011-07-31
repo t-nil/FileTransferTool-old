@@ -13,8 +13,8 @@ public class Recipient {
 	private int port;
 
 	/**
-	 * 
-	 * @param name
+	 * Creates a new Recipient
+	 * @param name 
 	 * @param address
 	 * @param port
 	 */
