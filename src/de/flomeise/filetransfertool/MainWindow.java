@@ -293,13 +293,19 @@ public class MainWindow extends javax.swing.JFrame {
 		} else if(!file.exists()) {
 			JOptionPane.showMessageDialog(this, "File doesn't exists!");
 		} else {
-			ExecutorService pool = Executors.newCachedThreadPool();
-			pool.execute(new Runnable() {
-				public void run() {
-					new FileTransferTool().send(file, address, port);
-				}
-
-			});
+			try {
+				final FileTransfer fileTransfer = new FileTransfer(address, port, false);
+				ExecutorService pool = Executors.newCachedThreadPool();
+				pool.execute(new Runnable() {
+					@Override
+					public void run() {
+						fileTransfer.send(file);
+					}
+				});
+			} catch(IOException ex) {
+				Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+				JOptionPane.showMessageDialog(this, "Connection failed!");
+			}
 		}
 	}//GEN-LAST:event_jButton2ActionPerformed
 

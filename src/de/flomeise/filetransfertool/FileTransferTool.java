@@ -33,15 +33,15 @@ import org.apache.commons.io.FileUtils;
  */
 public class FileTransferTool {
 	/**
-	 * 
+	 * the application name to be displayed in the about dialog
 	 */
 	public static final String NAME = "FileTransferTool";
 	/**
-	 * 
+	 * the author to be displayed in the about dialog
 	 */
 	public static final String AUTHOR = "Florian \"r0Xx4H-7331\" Meißner";
 	/**
-	 * 
+	 * the application version to be displayed in the about dialog and to be used in the updater
 	 */
 	public static final Version VERSION = new Version(FileTransferTool.class.getPackage().getImplementationVersion());
 	//old static initializer to read the program version from version.txt
@@ -57,14 +57,13 @@ public class FileTransferTool {
 //		VERSION = new Version(s);
 //	}
 	/**
-	 * 
+	 * the name of the config file
 	 */
 	public static final String PROPERTIES_FILE = "filetransfertool.properties";
 	private static Properties properties, pDefaults;
 	private static MainWindow mainWindow;
 	private static boolean initialized = false;
 	private static int connectionCount = 0;
-	private volatile boolean aborted = false;
 
 	/**
 	 * 
@@ -92,6 +91,29 @@ public class FileTransferTool {
 			properties.load(new FileInputStream(new File(PROPERTIES_FILE)));
 		} catch(IOException ex) {
 			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public static void listen() {
+		try {
+			ServerSocket server = new ServerSocket(Integer.parseInt(properties.getProperty("port")));
+			while(true) {
+				final Socket client = server.accept();
+				ExecutorService pool = Executors.newCachedThreadPool();
+				pool.execute(new Runnable() {
+					@Override
+					public void run() {
+						new FileTransfer(client, true).receive();
+					}
+
+				});
+			}
+		} catch(IOException ex) {
+			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
+			JOptionPane.showMessageDialog(mainWindow, "Could not bind to port, no incoming connections possible!!!");
 		}
 	}
 
@@ -155,108 +177,8 @@ public class FileTransferTool {
 		connectionCount--;
 	}
 
-	/**
-	 * 
-	 * @param file
-	 * @param address
-	 * @param port
-	 */
-	public void send(File file, String address, int port) {
-		connectionCount++;
-		Socket server = null;
-		InputStream isfile = null;
-		ProgressWindow pw = new ProgressWindow(this);
-		pw.setMaxProgress(10000);
-		pw.setVisible(true);
-		try {
-			server = new Socket();
-			pw.printToTextbox("Trying to connect to target...");
-			server.connect(new InetSocketAddress(address, port), 10000);
-			InputStream is = server.getInputStream();
-			OutputStream os = server.getOutputStream();
-			DataInputStream dis = new DataInputStream(is);
-			DataOutputStream dos = new DataOutputStream(os);
-			dos.writeUTF(VERSION.toString());
-			if(!dis.readBoolean()) {
-				JOptionPane.showMessageDialog(pw, "Target has different client version!");
-				return;
-			}
-			pw.printToTextbox("SUCCEEDED\n");
-			dos.writeUTF(file.getName());
-			dos.writeLong(file.length());
-			dos.write(MD5.getHash(file));
-			if(!dis.readBoolean()) {
-				JOptionPane.showMessageDialog(pw, "Attempt got refused by target!");
-				return;
-			} else {
-				pw.printToTextbox("Sending " + file.getName());
-			}
-			dos.writeInt(Integer.parseInt(properties.getProperty("buffer_size")));
-			isfile = new FileInputStream(file);
-			byte[] buffer = new byte[Integer.parseInt(properties.getProperty("buffer_size"))];
-			long bytesReadAll = 0, filesize = file.length();
-			int bytesRead = 0;
-			long startTime = System.currentTimeMillis();
-			while((bytesRead = isfile.read(buffer)) != -1) {
-				if(aborted == true) {
-					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						return;
-					}
-				}
-
-				try {
-					dos.write(buffer, 0, bytesRead);
-				} catch(SocketException e) {
-					JOptionPane.showMessageDialog(pw, "Peer has aborted the transfer!");
-					return;
-				}
-				bytesReadAll += bytesRead;
-				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
-				pw.setProgress((int) Math.round(progress));
-				double speed = Math.round((double) (bytesReadAll / 1024) / (System.currentTimeMillis() - startTime) * 100) / 100;
-				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
-			}
-			if(dis.readBoolean() == false) {
-				JOptionPane.showMessageDialog(pw, "File transfer failed!");
-			} else {
-				JOptionPane.showMessageDialog(pw, "File transfer suceeded!");
-			}
-		} catch(UnknownHostException ex) {
-			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
-		} catch(IOException ex) {
-			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
-		} finally {
-			try {
-				isfile.close();
-				server.close();
-			} catch(Exception e) {
-			}
-			pw.dispose();
-			connectionCount--;
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public static void listen() {
-		try {
-			ServerSocket server = new ServerSocket(Integer.parseInt(properties.getProperty("port")));
-			while(true) {
-				final Socket client = server.accept();
-				ExecutorService pool = Executors.newCachedThreadPool();
-				pool.execute(new Runnable() {
-					@Override
-					public void run() {
-						new FileTransferTool().receive(client);
-					}
-
-				});
-			}
-		} catch(IOException ex) {
-			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
-			JOptionPane.showMessageDialog(mainWindow, "Could not bind to port, no incoming connections possible!!!");
-		}
+	//now the non-static methods for actual sending/receiving
+	public FileTransferTool(String address, int port) {
 	}
 
 	/**
@@ -264,7 +186,7 @@ public class FileTransferTool {
 	 * @param client
 	 */
 	public void receive(Socket client) {
-		connectionCount++;
+		incrementConnectionCount();
 		FileOutputStream osfile = null;
 		ProgressWindow pw = new ProgressWindow(this);
 		pw.setMaxProgress(10000);
@@ -305,7 +227,7 @@ public class FileTransferTool {
 			int bytesRead = 0, bytesReadAll = 0;
 			long startTime = System.currentTimeMillis();
 			do {
-				if(aborted == true) {
+				if(isAborted() == true) {
 					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 						return;
 					}
@@ -338,17 +260,8 @@ public class FileTransferTool {
 			} catch(Exception e) {
 			}
 			pw.dispose();
-			connectionCount--;
+			decrementConnectionCount();
 		}
 
 	}
-
-	/**
-	 * 
-	 * @param aborted
-	 */
-	public synchronized void setAborted(boolean aborted) {
-		this.aborted = aborted;
-	}
-
 }

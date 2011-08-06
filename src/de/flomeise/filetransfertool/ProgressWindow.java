@@ -11,19 +11,20 @@
 package de.flomeise.filetransfertool;
 
 import java.awt.Toolkit;
+import javax.swing.JOptionPane;
 
 /**
  * A window wich shows the file transfer progress
  * @author Flohw
  */
 public class ProgressWindow extends javax.swing.JFrame {
-	private FileTransferTool fileTransferTool;
+	private FileTransfer fileTransfer;
 
 	/** Creates new form ProgressWindow
 	 * @param fileTransferTool 
 	 */
-	public ProgressWindow(FileTransferTool fileTransferTool) {
-		this.fileTransferTool = fileTransferTool;
+	public ProgressWindow(FileTransfer fileTransfer) {
+		this.fileTransfer = fileTransfer;
 		initComponents();
 		setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - getWidth()) / 2, (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight()) / 2);
 	}
@@ -125,7 +126,9 @@ public class ProgressWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-		fileTransferTool.setAborted(true);
+		if(JOptionPane.showConfirmDialog(fileTransfer.getProgressWindow(), "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			fileTransfer.setAborted();
+		}
 	}//GEN-LAST:event_jButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
