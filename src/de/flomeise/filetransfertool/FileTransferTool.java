@@ -4,28 +4,18 @@
  */
 package de.flomeise.filetransfertool;
 
-import com.twmacinta.util.MD5;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -40,22 +30,6 @@ public class FileTransferTool {
 	 * the author to be displayed in the about dialog
 	 */
 	public static final String AUTHOR = "Florian \"r0Xx4H-7331\" Meißner";
-	/**
-	 * the application version to be displayed in the about dialog and to be used in the updater
-	 */
-	public static final Version VERSION = new Version(FileTransferTool.class.getPackage().getImplementationVersion());
-	//old static initializer to read the program version from version.txt
-//	static {
-//		BufferedReader br = new BufferedReader(new InputStreamReader(FileTransferTool.class.getResourceAsStream("/version.txt")));
-//		String s = null;
-//		try {
-//			s = br.readLine();
-//		} catch(IOException ex) {
-//			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
-//			System.exit(1);
-//		}
-//		VERSION = new Version(s);
-//	}
 	/**
 	 * the name of the config file
 	 */
@@ -185,83 +159,83 @@ public class FileTransferTool {
 	 * 
 	 * @param client
 	 */
-	public void receive(Socket client) {
-		incrementConnectionCount();
-		FileOutputStream osfile = null;
-		ProgressWindow pw = new ProgressWindow(this);
-		pw.setMaxProgress(10000);
-		pw.setVisible(true);
-		try {
-			pw.printToTextbox("Initializing...");
-			InputStream is = client.getInputStream();
-			OutputStream os = client.getOutputStream();
-			DataInputStream dis = new DataInputStream(is);
-			DataOutputStream dos = new DataOutputStream(os);
-			Version v;
-			if(!(v = new Version(dis.readUTF())).equals(VERSION)) {
-				dos.writeBoolean(false);
-				JOptionPane.showMessageDialog(pw, "Different client version, source has " + v + ", you have " + VERSION);
-				return;
-			}
-			dos.writeBoolean(true);
-			pw.printToTextbox("DONE\n");
-			String filename = dis.readUTF();
-			File file = new File(properties.getProperty("save_dir"), filename);
-			long filesize = dis.readLong();
-			byte[] md5 = new byte[16];
-			dis.read(md5);
-			int result = JOptionPane.showConfirmDialog(pw, client.getInetAddress().getHostAddress() + " is trying to send you " + filename + " (Size: " + filesize + "). Would you like to accept the transfer?", "Incoming transfer", JOptionPane.YES_NO_OPTION);
-			if(result == JOptionPane.YES_OPTION) {
-				if(properties.getProperty("save_dialog").equals("true")) {
-					file = new File(FileOpenDialog.open(JFileChooser.SAVE_DIALOG, file));
-				}
-				osfile = new FileOutputStream(file);
-				dos.writeBoolean(true);
-			} else {
-				dos.writeBoolean(false);
-				return;
-			}
-			pw.printToTextbox("Retrieving " + filename);
-			int bufferSize = dis.readInt();
-			byte[] buffer = new byte[bufferSize];
-			int bytesRead = 0, bytesReadAll = 0;
-			long startTime = System.currentTimeMillis();
-			do {
-				if(isAborted() == true) {
-					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-						return;
-					}
-				}
-
-				bytesReadAll += (bytesRead = is.read(buffer));
-				if(bytesReadAll == -1) {
-					JOptionPane.showMessageDialog(pw, "Peer has aborted the transfer!");
-					return;
-				}
-				osfile.write(buffer, 0, bytesRead);
-				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
-				pw.setProgress((int) Math.round(progress));
-				double speed = Math.round((double) (bytesReadAll / 1024) / (System.currentTimeMillis() - startTime) * 100) / 100;
-				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
-			} while(bytesReadAll < filesize);
-			if(MD5.hashesEqual(md5, MD5.getHash(file))) {
-				dos.writeBoolean(true);
-				JOptionPane.showMessageDialog(pw, "File transfer succeeded!");
-			} else {
-				dos.writeBoolean(false);
-				JOptionPane.showMessageDialog(pw, "File transfer failed - hashes differ!");
-			}
-		} catch(IOException ex) {
-			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
-		} finally {
-			try {
-				osfile.close();
-				client.close();
-			} catch(Exception e) {
-			}
-			pw.dispose();
-			decrementConnectionCount();
-		}
-
-	}
+//	public void receive(Socket client) {
+//		incrementConnectionCount();
+//		FileOutputStream osfile = null;
+//		ProgressWindow pw = new ProgressWindow(this);
+//		pw.setMaxProgress(10000);
+//		pw.setVisible(true);
+//		try {
+//			pw.printToTextbox("Initializing...");
+//			InputStream is = client.getInputStream();
+//			OutputStream os = client.getOutputStream();
+//			DataInputStream dis = new DataInputStream(is);
+//			DataOutputStream dos = new DataOutputStream(os);
+//			Version v;
+//			if(!(v = new Version(dis.readUTF())).equals(VERSION)) {
+//				dos.writeBoolean(false);
+//				JOptionPane.showMessageDialog(pw, "Different client version, source has " + v + ", you have " + VERSION);
+//				return;
+//			}
+//			dos.writeBoolean(true);
+//			pw.printToTextbox("DONE\n");
+//			String filename = dis.readUTF();
+//			File file = new File(properties.getProperty("save_dir"), filename);
+//			long filesize = dis.readLong();
+//			byte[] md5 = new byte[16];
+//			dis.read(md5);
+//			int result = JOptionPane.showConfirmDialog(pw, client.getInetAddress().getHostAddress() + " is trying to send you " + filename + " (Size: " + filesize + "). Would you like to accept the transfer?", "Incoming transfer", JOptionPane.YES_NO_OPTION);
+//			if(result == JOptionPane.YES_OPTION) {
+//				if(properties.getProperty("save_dialog").equals("true")) {
+//					file = new File(FileOpenDialog.open(JFileChooser.SAVE_DIALOG, file));
+//				}
+//				osfile = new FileOutputStream(file);
+//				dos.writeBoolean(true);
+//			} else {
+//				dos.writeBoolean(false);
+//				return;
+//			}
+//			pw.printToTextbox("Retrieving " + filename);
+//			int bufferSize = dis.readInt();
+//			byte[] buffer = new byte[bufferSize];
+//			int bytesRead = 0, bytesReadAll = 0;
+//			long startTime = System.currentTimeMillis();
+//			do {
+//				if(isAborted() == true) {
+//					if(JOptionPane.showConfirmDialog(pw, "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+//						return;
+//					}
+//				}
+//
+//				bytesReadAll += (bytesRead = is.read(buffer));
+//				if(bytesReadAll == -1) {
+//					JOptionPane.showMessageDialog(pw, "Peer has aborted the transfer!");
+//					return;
+//				}
+//				osfile.write(buffer, 0, bytesRead);
+//				double progress = ((double) bytesReadAll / (double) filesize) * 10000;
+//				pw.setProgress((int) Math.round(progress));
+//				double speed = Math.round((double) (bytesReadAll / 1024) / (System.currentTimeMillis() - startTime) * 100) / 100;
+//				pw.setLabel(FileUtils.byteCountToDisplaySize(bytesReadAll) + "/" + FileUtils.byteCountToDisplaySize(filesize) + " (" + bytesReadAll + "/" + filesize + ") @ " + speed + " kb/s");
+//			} while(bytesReadAll < filesize);
+//			if(MD5.hashesEqual(md5, MD5.getHash(file))) {
+//				dos.writeBoolean(true);
+//				JOptionPane.showMessageDialog(pw, "File transfer succeeded!");
+//			} else {
+//				dos.writeBoolean(false);
+//				JOptionPane.showMessageDialog(pw, "File transfer failed - hashes differ!");
+//			}
+//		} catch(IOException ex) {
+//			Logger.getLogger(FileTransferTool.class.getName()).log(Level.SEVERE, null, ex);
+//		} finally {
+//			try {
+//				osfile.close();
+//				client.close();
+//			} catch(Exception e) {
+//			}
+//			pw.dispose();
+//			decrementConnectionCount();
+//		}
+//
+//	}
 }

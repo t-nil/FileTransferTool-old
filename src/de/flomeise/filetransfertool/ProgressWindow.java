@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
  */
 public class ProgressWindow extends javax.swing.JFrame {
 	private FileTransfer fileTransfer;
+	private boolean aborted = false;
 
 	/** Creates new form ProgressWindow
 	 * @param fileTransferTool 
@@ -61,6 +62,10 @@ public class ProgressWindow extends javax.swing.JFrame {
 	 */
 	public synchronized void setLabel(String s) {
 		jLabel1.setText(s);
+	}
+	
+	public synchronized boolean isAborted() {
+		return aborted;
 	}
 
 	/** This method is called from within the constructor to
@@ -127,7 +132,7 @@ public class ProgressWindow extends javax.swing.JFrame {
 
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 		if(JOptionPane.showConfirmDialog(fileTransfer.getProgressWindow(), "Would you really like to abort the transfer?", "Abort", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-			fileTransfer.setAborted();
+			aborted = true;
 		}
 	}//GEN-LAST:event_jButton1ActionPerformed
 

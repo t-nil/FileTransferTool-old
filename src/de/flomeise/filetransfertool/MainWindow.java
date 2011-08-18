@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
@@ -46,12 +44,13 @@ public class MainWindow extends javax.swing.JFrame {
 	Map<String, Recipient> recipients;
 
 	/** Creates new form MainWindow */
+	@SuppressWarnings("LeakingThisInConstructor")
 	public MainWindow() {
 		FileTransferTool.init(this);
 		initComponents();
 		jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		jTree1Model = (DefaultTreeModel) jTree1.getModel();
-		recipients = new HashMap<String, Recipient>();
+		recipients = new HashMap<>();
 		loadFavourites(this);
 		expandAll(jTree1, true);
 		setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - getWidth()) / 2, (Toolkit.getDefaultToolkit().getScreenSize().height - getHeight()) / 2);
@@ -303,14 +302,14 @@ public class MainWindow extends javax.swing.JFrame {
 					}
 				});
 			} catch(IOException ex) {
-				Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+				ex.printStackTrace();
 				JOptionPane.showMessageDialog(this, "Connection failed!");
 			}
 		}
 	}//GEN-LAST:event_jButton2ActionPerformed
 
 	private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-		if(FileTransferTool.getConnectionCount() == 0) {
+		if(JOptionPane.showConfirmDialog(this, "Would you really like to quit? All connections would be closed.", "Close", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			saveFavourites(this);
 			dispose();
 			doExit(0);
@@ -322,7 +321,7 @@ public class MainWindow extends javax.swing.JFrame {
 			new ProcessBuilder("explorer.exe", FileTransferTool.getProperty("save_dir")).start();
 		} catch(IOException ex) {
 			JOptionPane.showMessageDialog(this, "Directory could not be opened");
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
 		}
 	}//GEN-LAST:event_jButton3ActionPerformed
 
@@ -571,7 +570,7 @@ public class MainWindow extends javax.swing.JFrame {
 			mw.jTree1.setModel((DefaultTreeModel) x.fromXML(new FileInputStream(new File("favourites1.xml"))));
 			mw.recipients = (Map<String, Recipient>) x.fromXML(new FileInputStream(new File("favourites2.xml")));
 		} catch(FileNotFoundException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -581,7 +580,7 @@ public class MainWindow extends javax.swing.JFrame {
 			x.toXML(mw.recipients, new FileOutputStream(new File("favourites2.xml")));
 			x.toXML(mw.jTree1.getModel(), new FileOutputStream(new File("favourites1.xml")));
 		} catch(FileNotFoundException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -595,32 +594,13 @@ public class MainWindow extends javax.swing.JFrame {
 	 * @param args the command line arguments
 	 * @throws Exception  
 	 */
+	@SuppressWarnings("SleepWhileInLoop")
 	public static void main(String args[]) throws Exception {
 		try {
 			UIManager.setLookAndFeel(
 					UIManager.getSystemLookAndFeelClassName());
-		} catch(ClassNotFoundException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-		} catch(InstantiationException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-		} catch(IllegalAccessException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-		} catch(UnsupportedLookAndFeelException ex) {
-			Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-		}
-
-		if(args.length == 2 && args[0].equals("-update")) {
-			File oldJar = new File(args[2]);
-			File lock = new File(oldJar.getParentFile(), "lock");
-
-			while(lock.exists()) {
-				Thread.sleep(100);
-			}
-
-			File newJar = new File(MainWindow.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-			FileUtils.copyFile(newJar, oldJar);
-			new ProcessBuilder(oldJar.getCanonicalPath()).start();
-			return;
+		} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+			ex.printStackTrace();
 		}
 
 		File lock = new File("lock");
@@ -628,13 +608,13 @@ public class MainWindow extends javax.swing.JFrame {
 		lock.deleteOnExit();
 
 		if(!(args.length == 1 && args[0].equals("-noupdate"))) {
-			Updater.update("http://flomeise.de/coding/updater/", "FileTransferTool", FileTransferTool.VERSION);
-
-			File updateFolder = new File("update");
 			File currentJar = new File(MainWindow.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-			if(updateFolder.exists() && updateFolder.isDirectory() && currentJar.exists() && currentJar.isFile()) {
-				new ProcessBuilder(new File(updateFolder.getCanonicalPath(), currentJar.getName()).getCanonicalPath(), "-update", currentJar.getCanonicalPath()).start();
-				return;
+			try {
+				new ProcessBuilder("java -jar Updater.jar", "http://flomeise.de/coding/updater/filetransfertool/", currentJar.getCanonicalPath()).start();
+				System.exit(0);
+			} catch(IOException ex) {
+				ex.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Updater not present!");
 			}
 		}
 
@@ -655,15 +635,6 @@ public class MainWindow extends javax.swing.JFrame {
 		};
 		t.setDaemon(true);
 		t.start();
-
-		/*Thread t2 = new Thread() {
-		@Override
-		public void run() {
-		while(true) {
-		
-		}
-		}
-		}*/
 	}
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;

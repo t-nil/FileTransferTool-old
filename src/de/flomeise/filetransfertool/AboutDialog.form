@@ -39,7 +39,7 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace pref="46" max="32767" attributes="0"/>
+              <EmptySpace pref="24" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -86,9 +86,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="FileTransferTool.VERSION.toString()" type="code"/>
-        </Property>
+        <Property name="text" type="java.lang.String" value="Currently not available"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
